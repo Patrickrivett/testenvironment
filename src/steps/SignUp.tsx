@@ -41,14 +41,16 @@ export function SignUp({
         <div className="brand">
           <span className="brand-mark">◆</span> Dealbox
         </div>
-        <h1>Every brand deal, in one place.</h1>
+        <h1>
+          Every brand deal, <em>in one place.</em>
+        </h1>
         <p>
           Forward your contracts to your own private Dealbox address. We pull out the fees, deadlines, usage rights and
           exclusivity terms so nothing slips.
         </p>
         <ul className="auth-bullets">
           <li>Your own forwarding address, set up in about a minute</li>
-          <li>Works with a normal Gmail filter — we never log in to your inbox</li>
+          <li>Works with Gmail forwarding — we never log in to your inbox</li>
           <li>Upload or forward by hand any time</li>
         </ul>
       </div>

@@ -1,3 +1,5 @@
+export type ForwardMode = '' | 'all' | 'filter'
+
 export type SocialAccount = {
   handle: string
   connected: boolean
@@ -46,6 +48,8 @@ export type OnboardingData = {
   // Inbox
   inboxAddress: string
   forwardingConfirmed: boolean
+  /** 'all' = Gmail forwards everything and we filter; 'filter' = user sets up a Gmail filter. */
+  forwardMode: ForwardMode
   filterCreated: boolean
   testReceived: boolean
 
@@ -89,6 +93,7 @@ export const initialData: OnboardingData = {
   paymentTerms: '',
   inboxAddress: '',
   forwardingConfirmed: false,
+  forwardMode: '',
   filterCreated: false,
   testReceived: false,
   consentProcessing: false,

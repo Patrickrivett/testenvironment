@@ -16,8 +16,10 @@ Then open http://localhost:5173. Your progress is saved in localStorage. Click *
 1. **Sign up**: name, email, password (or a mocked "Continue with Google")
 2. **Contract inbox**
    - **Your address**: a generated forwarding address like `jane.doe.k7q2@inbox.dealbox.app`, plus consent checkboxes
-   - **Gmail forwarding**: a walkthrough that shows one instruction at a time (finished ones collapse into a checklist). After "I've added it", a mocked Gmail confirmation code appears
-   - **Create filter**: the same one-at-a-time walkthrough, with a copyable Gmail search query
+   - **Connect Gmail**: a walkthrough that shows one instruction at a time (finished ones collapse into a checklist). After "I've added it", a mocked Gmail confirmation code appears. The creator then chooses what gets forwarded:
+     - **Forward everything**: Gmail forwards all mail and Dealbox picks out the deals. The filter page is skipped.
+     - **Only contract emails**: forwarding stays off and they set up a 3-step Gmail filter on the next page.
+   - **Contract filter** (only for "Only contract emails"): a copyable Gmail search and three short steps
    - **Send a test**: a mocked "listening" state, plus manual forwarding and PDF upload as fallbacks
 3. **Your profile**
    - **About you**: display name, date of birth (18+ check), pronouns, phone, country, city

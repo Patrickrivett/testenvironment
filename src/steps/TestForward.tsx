@@ -17,7 +17,7 @@ export function TestForward({ data, update, next, back }: StepProps) {
 
   return (
     <div className="step">
-      <p className="eyebrow">Contract inbox · Step 4 of 4</p>
+      <p className="eyebrow">Contract inbox</p>
       <h2>Send yourself a test</h2>
       <p className="lead">Let's make sure contracts actually reach Dealbox.</p>
 

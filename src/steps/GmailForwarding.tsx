@@ -107,28 +107,93 @@ export function GmailForwarding({ data, update, next, back }: StepProps) {
       nextDisabled: !code,
     },
     {
-      title: 'Leave forwarding off and save',
+      title: 'Choose what gets forwarded',
       body: (
         <>
-          <p>
-            Keep <b>"Disable forwarding"</b> selected. You don't want to forward <em>everything</em>. The filter in the next
-            step decides which emails go to Dealbox.
-          </p>
-          <p>
-            Scroll to the bottom and click <b>Save Changes</b>.
-          </p>
+          <p>How much of your email should Dealbox see? You can change this later.</p>
+          <div className="choice-grid">
+            <ChoiceCard
+              selected={data.forwardMode === 'all'}
+              onSelect={() => update({ forwardMode: 'all' })}
+              tag="Easiest"
+              title="Forward everything"
+              desc="Gmail sends us all your email and we pick out the brand deals."
+              points={[
+                'One more click, then you\'re done',
+                'Catches deals sent as DocuSign links or in the email body',
+                'Anything that isn\'t a deal is deleted straight away, never stored',
+              ]}
+            />
+            <ChoiceCard
+              selected={data.forwardMode === 'filter'}
+              onSelect={() => update({ forwardMode: 'filter' })}
+              tag="Most private"
+              title="Only contract emails"
+              desc="You add a Gmail filter so only emails with contract PDFs reach us."
+              points={[
+                'About 1 extra minute to set up',
+                'Everything else never leaves your inbox',
+                'May miss deals that don\'t come with a PDF attached',
+              ]}
+            />
+          </div>
         </>
       ),
-      nextLabel: 'Saved',
-      onNext: () => update({ forwardingConfirmed: true }),
+      nextLabel: 'Continue',
+      nextDisabled: !data.forwardMode,
     },
+    data.forwardMode === 'all'
+      ? {
+          title: 'Turn on forwarding and save',
+          body: (
+            <>
+              <p>
+                Select <b>Forward a copy of incoming mail to</b>, pick your Dealbox address, and choose{' '}
+                <b>keep Gmail's copy in the Inbox</b>. Then scroll down and click <b>Save Changes</b>.
+              </p>
+              <div className="mock-gmail" aria-hidden>
+                <div className="mock-gmail-body mock-radios">
+                  <div className="mock-radio">
+                    <span className="radio" /> Disable forwarding
+                  </div>
+                  <div className="mock-radio on">
+                    <span className="radio" /> Forward a copy of incoming mail to{' '}
+                    <span className="mock-select">{data.inboxAddress} ▾</span> and{' '}
+                    <span className="mock-select">keep Gmail's copy in the Inbox ▾</span>
+                  </div>
+                </div>
+              </div>
+              <p className="muted small">
+                Gmail will show a "You are forwarding your email" reminder for about a week. That's normal.
+              </p>
+            </>
+          ),
+          nextLabel: 'Saved',
+          onNext: () => update({ forwardingConfirmed: true }),
+        }
+      : {
+          title: 'Leave forwarding off and save',
+          body: (
+            <>
+              <p>
+                Keep <b>"Disable forwarding"</b> selected. The filter you'll set up next decides which emails go to
+                Dealbox.
+              </p>
+              <p>
+                Scroll to the bottom and click <b>Save Changes</b>.
+              </p>
+            </>
+          ),
+          nextLabel: 'Saved',
+          onNext: () => update({ forwardingConfirmed: true }),
+        },
   ]
 
   return (
     <div className="step">
-      <p className="eyebrow">Contract inbox · Step 2 of 4</p>
-      <h2>Add your Dealbox address to Gmail</h2>
-      <p className="lead">Keep this tab open and follow along in Gmail. Five quick steps.</p>
+      <p className="eyebrow">Contract inbox</p>
+      <h2>Connect your Gmail</h2>
+      <p className="lead">Keep this tab open and follow along in Gmail.</p>
 
       <Walkthrough
         steps={steps}
@@ -137,12 +202,16 @@ export function GmailForwarding({ data, update, next, back }: StepProps) {
         done={done}
         doneContent={
           <div className="wt-done">
-            <Callout tone="success">Forwarding address verified ✓</Callout>
+            <Callout tone="success">
+              {data.forwardMode === 'all'
+                ? 'Forwarding is on ✓ We\'ll pick out your brand deals from now on.'
+                : 'Forwarding address verified ✓ Next, a quick filter.'}
+            </Callout>
             <button
               type="button"
               className="link small"
               onClick={() => {
-                update({ forwardingConfirmed: false })
+                update({ forwardingConfirmed: false, forwardMode: '', filterCreated: false })
                 setCode('')
                 setCurrent(0)
               }}
@@ -166,5 +235,37 @@ export function GmailForwarding({ data, update, next, back }: StepProps) {
         }
       />
     </div>
+  )
+}
+
+function ChoiceCard({
+  selected,
+  onSelect,
+  tag,
+  title,
+  desc,
+  points,
+}: {
+  selected: boolean
+  onSelect: () => void
+  tag: string
+  title: string
+  desc: string
+  points: string[]
+}) {
+  return (
+    <button type="button" className={`choice-card ${selected ? 'selected' : ''}`} onClick={onSelect} aria-pressed={selected}>
+      <span className="choice-top">
+        <span className="choice-tag">{tag}</span>
+        <span className="choice-radio" aria-hidden />
+      </span>
+      <strong className="choice-title">{title}</strong>
+      <span className="choice-desc">{desc}</span>
+      <ul>
+        {points.map((pt) => (
+          <li key={pt}>{pt}</li>
+        ))}
+      </ul>
+    </button>
   )
 }

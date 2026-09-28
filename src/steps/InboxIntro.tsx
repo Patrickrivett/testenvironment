@@ -6,7 +6,7 @@ export function InboxIntro({ data, update, next, back }: StepProps) {
 
   return (
     <div className="step">
-      <p className="eyebrow">Contract inbox · Step 1 of 4</p>
+      <p className="eyebrow">Contract inbox</p>
       <h2>Here's your private Dealbox address</h2>
       <p className="lead">
         Anything sent to this address lands in your Dealbox. You'll set Gmail to forward brand contracts here
@@ -27,8 +27,8 @@ export function InboxIntro({ data, update, next, back }: StepProps) {
         <div className="hiw-item">
           <span className="hiw-num">2</span>
           <div>
-            <strong>Create a filter</strong>
-            <p>Paste our ready-made search so only emails with contract PDFs get forwarded.</p>
+            <strong>Choose what to send</strong>
+            <p>Forward everything and let us pick out the deals, or set a Gmail filter to send contracts only.</p>
           </div>
         </div>
         <div className="hiw-item">
@@ -64,7 +64,8 @@ export function InboxIntro({ data, update, next, back }: StepProps) {
             onChange={(e) => update({ consentRetention: e.target.checked })}
           />
           <span>
-            I understand non-contract emails that get forwarded by mistake are discarded automatically and not kept.
+            I understand any forwarded email that isn't a brand deal or contract is discarded automatically and not
+            kept.
           </span>
         </label>
         <label className="check">

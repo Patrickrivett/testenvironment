@@ -1,6 +1,7 @@
 import { StepNav } from '../components/ui'
 import { ageFromDob } from '../lib/inbox'
 import type { StepProps } from '../types'
+import type { StepId } from '../App'
 
 function Row({ label, value }: { label: string; value?: string | number | null }) {
   return (
@@ -20,7 +21,7 @@ function Status({ ok, label }: { ok: boolean; label: string }) {
   )
 }
 
-export function Review({ data, next, back, goTo }: StepProps & { goTo: (i: number) => void }) {
+export function Review({ data, next, back, goTo }: StepProps & { goTo: (id: StepId) => void }) {
   const socials = (['instagram', 'tiktok', 'youtube'] as const)
     .filter((k) => data[k].handle)
     .map((k) => `@${data[k].handle}${data[k].connected ? ' ✓' : ''}`)
@@ -34,20 +35,30 @@ export function Review({ data, next, back, goTo }: StepProps & { goTo: (i: numbe
       <section className="review-card">
         <div className="review-head">
           <h3>Contract inbox</h3>
-          <button type="button" className="link" onClick={() => goTo(0)}>
+          <button type="button" className="link" onClick={() => goTo('address')}>
             Edit
           </button>
         </div>
         <Row label="Your address" value={data.inboxAddress} />
-        <Status ok={data.forwardingConfirmed} label="Gmail forwarding address verified" />
-        <Status ok={data.filterCreated} label="Contract filter created" />
+        <Row
+          label="Forwarding"
+          value={
+            data.forwardMode === 'all'
+              ? 'Everything (Dealbox picks out deals)'
+              : data.forwardMode === 'filter'
+                ? 'Contract emails only (Gmail filter)'
+                : 'Not chosen yet'
+          }
+        />
+        <Status ok={data.forwardingConfirmed} label="Gmail connected" />
+        {data.forwardMode !== 'all' && <Status ok={data.filterCreated} label="Contract filter created" />}
         <Status ok={data.testReceived} label="Test email received" />
       </section>
 
       <section className="review-card">
         <div className="review-head">
           <h3>Profile</h3>
-          <button type="button" className="link" onClick={() => goTo(4)}>
+          <button type="button" className="link" onClick={() => goTo('about')}>
             Edit
           </button>
         </div>
@@ -64,7 +75,7 @@ export function Review({ data, next, back, goTo }: StepProps & { goTo: (i: numbe
       <section className="review-card">
         <div className="review-head">
           <h3>Business</h3>
-          <button type="button" className="link" onClick={() => goTo(7)}>
+          <button type="button" className="link" onClick={() => goTo('business')}>
             Edit
           </button>
         </div>
