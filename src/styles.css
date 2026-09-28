@@ -517,6 +517,7 @@ textarea {
 }
 .step-container {
   max-width: 720px;
+  margin: 0 auto;
   animation: fade 0.25s ease;
 }
 @keyframes fade {
