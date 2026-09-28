@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { initialData, type OnboardingData, type StepProps } from './types'
 import { generateInboxAddress } from './lib/inbox'
 import { SignUp } from './steps/SignUp'
@@ -14,21 +14,37 @@ import { Review } from './steps/Review'
 
 type Screen = 'signup' | 'onboarding' | 'dashboard'
 
-type Saved = { screen: Screen; step: number; data: OnboardingData }
+export type StepId =
+  | 'address'
+  | 'gmail'
+  | 'filter'
+  | 'test'
+  | 'about'
+  | 'socials'
+  | 'content'
+  | 'business'
+  | 'review'
 
-const STORAGE_KEY = 'dealbox-onboarding-mock'
+type Saved = { screen: Screen; step: StepId; data: OnboardingData }
 
-const STEPS: { group: string; label: string }[] = [
-  { group: 'Contract inbox', label: 'Your address' },
-  { group: 'Contract inbox', label: 'Gmail forwarding' },
-  { group: 'Contract inbox', label: 'Create filter' },
-  { group: 'Contract inbox', label: 'Send a test' },
-  { group: 'Your profile', label: 'About you' },
-  { group: 'Your profile', label: 'Social accounts' },
-  { group: 'Your profile', label: 'Your content' },
-  { group: 'Your profile', label: 'Business details' },
-  { group: 'Finish', label: 'Review' },
+const STORAGE_KEY = 'dealbox-onboarding-mock-v2'
+
+const ALL_STEPS: { id: StepId; group: string; label: string }[] = [
+  { id: 'address', group: 'Contract inbox', label: 'Your address' },
+  { id: 'gmail', group: 'Contract inbox', label: 'Connect Gmail' },
+  { id: 'filter', group: 'Contract inbox', label: 'Contract filter' },
+  { id: 'test', group: 'Contract inbox', label: 'Send a test' },
+  { id: 'about', group: 'Your profile', label: 'About you' },
+  { id: 'socials', group: 'Your profile', label: 'Social accounts' },
+  { id: 'content', group: 'Your profile', label: 'Your content' },
+  { id: 'business', group: 'Your profile', label: 'Business details' },
+  { id: 'review', group: 'Finish', label: 'Review' },
 ]
+
+/** The filter page only exists for creators who chose to forward contracts only. */
+function visibleSteps(data: OnboardingData) {
+  return ALL_STEPS.filter((s) => s.id !== 'filter' || data.forwardMode !== 'all')
+}
 
 function load(): Saved {
   try {
@@ -40,12 +56,12 @@ function load(): Saved {
   } catch {
     /* ignore corrupt or blocked storage */
   }
-  return { screen: 'signup', step: 0, data: initialData }
+  return { screen: 'signup', step: 'address', data: initialData }
 }
 
 export default function App() {
   const [state, setState] = useState<Saved>(load)
-  const { screen, step, data } = state
+  const { screen, data } = state
 
   useEffect(() => {
     try {
@@ -55,16 +71,20 @@ export default function App() {
     }
   }, [state])
 
+  const steps = visibleSteps(data)
+  const index = Math.max(0, steps.findIndex((s) => s.id === state.step))
+  const current = steps[index]
+
   useEffect(() => {
     window.scrollTo({ top: 0 })
-  }, [screen, step])
+  }, [screen, current.id])
 
   const update = useCallback(
     (patch: Partial<OnboardingData>) => setState((s) => ({ ...s, data: { ...s.data, ...patch } })),
     [],
   )
-  const goTo = (i: number) => setState((s) => ({ ...s, step: i }))
-  const reset = () => setState({ screen: 'signup', step: 0, data: initialData })
+  const goTo = (id: StepId) => setState((s) => ({ ...s, step: id }))
+  const reset = () => setState({ screen: 'signup', step: 'address', data: initialData })
 
   if (screen === 'signup') {
     return (
@@ -74,7 +94,7 @@ export default function App() {
         onDone={() =>
           setState((s) => ({
             screen: 'onboarding',
-            step: 0,
+            step: 'address',
             data: {
               ...s.data,
               inboxAddress: s.data.inboxAddress || generateInboxAddress(s.data.firstName, s.data.lastName),
@@ -101,26 +121,33 @@ export default function App() {
     data,
     update,
     next: () =>
-      setState((s) =>
-        s.step >= STEPS.length - 1 ? { ...s, screen: 'dashboard' } : { ...s, step: s.step + 1 },
-      ),
-    back: () => setState((s) => (s.step === 0 ? { ...s, screen: 'signup' } : { ...s, step: s.step - 1 })),
+      setState((s) => {
+        const list = visibleSteps(s.data)
+        const i = list.findIndex((x) => x.id === s.step)
+        return i >= list.length - 1 ? { ...s, screen: 'dashboard' } : { ...s, step: list[i + 1].id }
+      }),
+    back: () =>
+      setState((s) => {
+        const list = visibleSteps(s.data)
+        const i = list.findIndex((x) => x.id === s.step)
+        return i <= 0 ? { ...s, screen: 'signup' } : { ...s, step: list[i - 1].id }
+      }),
   }
 
-  const stepEls = [
-    <InboxIntro {...props} />,
-    <GmailForwarding {...props} />,
-    <GmailFilter {...props} />,
-    <TestForward {...props} />,
-    <AboutYou {...props} />,
-    <Socials {...props} />,
-    <CreatorProfile {...props} />,
-    <Business {...props} />,
-    <Review {...props} goTo={goTo} />,
-  ]
+  const pages: Record<StepId, ReactNode> = {
+    address: <InboxIntro {...props} />,
+    gmail: <GmailForwarding {...props} />,
+    filter: <GmailFilter {...props} />,
+    test: <TestForward {...props} />,
+    about: <AboutYou {...props} />,
+    socials: <Socials {...props} />,
+    content: <CreatorProfile {...props} />,
+    business: <Business {...props} />,
+    review: <Review {...props} goTo={goTo} />,
+  }
 
-  const groups = [...new Set(STEPS.map((s) => s.group))]
-  const progress = Math.round((step / (STEPS.length - 1)) * 100)
+  const groups = [...new Set(steps.map((s) => s.group))]
+  const progress = Math.round((index / (steps.length - 1)) * 100)
 
   return (
     <div className="onboarding">
@@ -135,16 +162,16 @@ export default function App() {
           {groups.map((g) => (
             <div key={g} className="nav-group">
               <p className="nav-group-title">{g}</p>
-              {STEPS.map((s, i) =>
+              {steps.map((s, i) =>
                 s.group !== g ? null : (
                   <button
                     type="button"
-                    key={s.label}
-                    className={`nav-item ${i === step ? 'current' : ''} ${i < step ? 'done' : ''}`}
-                    onClick={() => i < step && goTo(i)}
-                    disabled={i > step}
+                    key={s.id}
+                    className={`nav-item ${i === index ? 'current' : ''} ${i < index ? 'done' : ''}`}
+                    onClick={() => i < index && goTo(s.id)}
+                    disabled={i > index}
                   >
-                    <span className="nav-dot">{i < step ? '✓' : i + 1}</span>
+                    <span className="nav-dot">{i < index ? '✓' : i + 1}</span>
                     {s.label}
                   </button>
                 ),
@@ -163,14 +190,14 @@ export default function App() {
       <main className="main">
         <div className="mobile-progress">
           <span>
-            {STEPS[step].group} · {STEPS[step].label}
+            {current.group} · {current.label}
           </span>
           <div className="progress">
             <div className="progress-bar" style={{ width: `${progress}%` }} />
           </div>
         </div>
-        <div key={step} className="step-container">
-          {stepEls[step]}
+        <div key={current.id} className="step-container">
+          {pages[current.id]}
         </div>
       </main>
     </div>
