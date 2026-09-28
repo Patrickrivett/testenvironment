@@ -974,3 +974,100 @@ textarea {
     margin-left: 0;
   }
 }
+
+/* Walkthrough (one instruction at a time) */
+.walkthrough {
+  margin: 1.5rem 0;
+}
+.wt-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.wt-progress span {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: #e8e5de;
+  transition: background 0.2s;
+}
+.wt-progress span.done {
+  background: var(--success);
+}
+.wt-progress span.current {
+  background: var(--accent);
+}
+.wt-done-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 4px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.wt-done-row:disabled {
+  cursor: default;
+}
+.wt-done-row:not(:disabled):hover {
+  color: var(--text);
+}
+.wt-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+.wt-edit {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.wt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 14px;
+  box-shadow: 0 4px 16px rgba(28, 27, 26, 0.05);
+  animation: fade 0.25s ease;
+}
+.wt-count {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.wt-title {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+.wt-body > p:first-child {
+  margin-top: 0;
+}
+.wt-body .mock-gmail,
+.wt-body .mock-filter {
+  margin-bottom: 0;
+}
+.wt-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.wt-done {
+  margin-top: 14px;
+}
